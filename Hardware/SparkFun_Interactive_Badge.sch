@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -23476,7 +23476,7 @@ CY7C65213 USB-UART controller.</description>
 <part name="SUPPLY5" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="U2" library="SparkFun-DigitalIC" deviceset="ATMEGA328_SMT" device="" value="ATMEGA328P"/>
 <part name="C4" library="SparkFun-Capacitors" deviceset="0.1UF-25V(+80/-20%)(0603)" device="" value="0.1uF"/>
-<part name="S1" library="SparkFun-Electromechanical" deviceset="SWITCH-MOMENTARY-2" device="SMD">
+<part name="S1" library="SparkFun-Electromechanical" deviceset="SWITCH-MOMENTARY-2" device="SMD-REDUNDANT" value="SWITCH-MOMENTARY-2SMD-REDUNDANT">
 <attribute name="FUNC" value="Reset"/>
 </part>
 <part name="R3" library="SparkFun-Resistors" deviceset="10KOHM-1/10W-1%(0603)" device="0603" value="10K"/>
@@ -23504,7 +23504,7 @@ CY7C65213 USB-UART controller.</description>
 <part name="JP3" library="SparkFun-Connectors" deviceset="M12" device="LOCK"/>
 <part name="JP4" library="SparkFun-Connectors" deviceset="M14" device="LOCK"/>
 <part name="JP5" library="SparkFun-Connectors" deviceset="M02" device="PTH"/>
-<part name="JP6" library="SparkFun-Connectors" deviceset="M03" device="SMD_RA_FEMALE" value="1x3 RA Female .1&quot;"/>
+<part name="JP6" library="SparkFun-Connectors" deviceset="M03" device="LOCK" value="M03LOCK Female"/>
 </parts>
 <sheets>
 <sheet>

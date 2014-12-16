@@ -22759,7 +22759,9 @@ CY7C65213 USB-UART controller.</description>
 </class>
 </classes>
 <parts>
-<part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-LETTER" device=""/>
+<part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-LETTER" device="">
+<attribute name="DESIGNER" value="Shawn Hymel"/>
+</part>
 <part name="FID1" library="SparkFun-Aesthetics" deviceset="FIDUCIAL" device="1X2"/>
 <part name="FID2" library="SparkFun-Aesthetics" deviceset="FIDUCIAL" device="1X2"/>
 <part name="STANDOFF1" library="SparkFun-Electromechanical" deviceset="STAND-OFF" device=""/>
@@ -22824,8 +22826,6 @@ CY7C65213 USB-UART controller.</description>
 <sheets>
 <sheet>
 <plain>
-<text x="238.76" y="7.62" size="2.54" layer="94">v01</text>
-<text x="167.64" y="11.176" size="2.54" layer="94">Shawn Hymel</text>
 <text x="78.74" y="71.12" size="1.778" layer="97" align="center-right">RX (Pin 10)</text>
 <text x="78.74" y="66.04" size="1.778" layer="97" align="center-right">TX (Pin 11)</text>
 <wire x1="50.8" y1="152.4" x2="0" y2="152.4" width="0.1524" layer="97" style="longdash"/>

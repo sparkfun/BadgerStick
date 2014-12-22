@@ -33889,10 +33889,18 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="GND17" gate="1" x="137.16" y="114.3"/>
 <instance part="SUPPLY9" gate="G$1" x="58.42" y="124.46"/>
 <instance part="SUPPLY10" gate="G$1" x="81.28" y="124.46"/>
-<instance part="JP5" gate="G$1" x="96.52" y="43.18" rot="R180"/>
-<instance part="JP6" gate="G$1" x="96.52" y="68.58" rot="R180"/>
-<instance part="JP4" gate="G$1" x="55.88" y="55.88" rot="R180"/>
-<instance part="JP3" gate="G$1" x="7.62" y="55.88"/>
+<instance part="JP5" gate="G$1" x="96.52" y="43.18" smashed="yes" rot="R180">
+<attribute name="NAME" x="99.06" y="37.338" size="1.778" layer="95" rot="R180"/>
+</instance>
+<instance part="JP6" gate="G$1" x="96.52" y="68.58" smashed="yes" rot="R180">
+<attribute name="NAME" x="99.06" y="62.738" size="1.778" layer="95" rot="R180"/>
+</instance>
+<instance part="JP4" gate="G$1" x="55.88" y="55.88" smashed="yes" rot="R180">
+<attribute name="NAME" x="55.88" y="34.798" size="1.778" layer="95" rot="R180"/>
+</instance>
+<instance part="JP3" gate="G$1" x="7.62" y="55.88" smashed="yes">
+<attribute name="NAME" x="7.62" y="76.962" size="1.778" layer="95"/>
+</instance>
 <instance part="Y1" gate="G$1" x="185.42" y="106.68" smashed="yes" rot="R270">
 <attribute name="NAME" x="180.34" y="110.744" size="1.778" layer="95"/>
 <attribute name="VALUE" x="180.34" y="100.33" size="1.778" layer="96"/>

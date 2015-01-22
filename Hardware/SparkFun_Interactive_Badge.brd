@@ -6,11 +6,11 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="dots" multiple="1" display="yes" altdistance="0.005" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="dots" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
-<layer number="2" name="Route2" color="1" fill="3" visible="no" active="yes"/>
-<layer number="15" name="Route15" color="4" fill="6" visible="no" active="yes"/>
+<layer number="2" name="Route2" color="1" fill="3" visible="yes" active="yes"/>
+<layer number="15" name="Route15" color="4" fill="6" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
@@ -20,25 +20,25 @@
 <layer number="22" name="bPlace" color="14" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
-<layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
-<layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
-<layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
-<layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="yes"/>
-<layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="yes"/>
-<layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="yes"/>
-<layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
-<layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
-<layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
+<layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
+<layer number="31" name="tCream" color="7" fill="4" visible="yes" active="yes"/>
+<layer number="32" name="bCream" color="7" fill="5" visible="yes" active="yes"/>
+<layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
+<layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
+<layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
+<layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
+<layer number="43" name="vRestrict" color="2" fill="10" visible="yes" active="yes"/>
+<layer number="44" name="Drills" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="51" name="tDocu" color="6" fill="1" visible="yes" active="yes"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="yes"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
 <layer number="4" name="Route4" color="1" fill="4" visible="no" active="no"/>
 <layer number="5" name="Route5" color="4" fill="4" visible="no" active="no"/>
@@ -407,10 +407,6 @@ Port</text>
 <wire x1="17.78" y1="119.38" x2="17.78" y2="-7.62" width="0.254" layer="114"/>
 <wire x1="17.78" y1="-7.62" x2="-85.09" y2="-7.62" width="0.254" layer="114"/>
 <wire x1="-85.09" y1="-7.62" x2="-85.09" y2="119.38" width="0.254" layer="114"/>
-<wire x1="-67.945" y1="101.6" x2="-67.945" y2="68.58" width="0.254" layer="51"/>
-<wire x1="-67.945" y1="68.58" x2="0.635" y2="68.58" width="0.254" layer="51"/>
-<wire x1="0.635" y1="68.58" x2="0.635" y2="101.6" width="0.254" layer="51"/>
-<wire x1="0.635" y1="101.6" x2="-67.945" y2="101.6" width="0.254" layer="51"/>
 <dimension x1="0" y1="0" x2="6.35" y2="1.27" x3="3.175" y3="-13.97" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
 <dimension x1="0" y1="0" x2="17.78" y2="0" x3="8.89" y3="-24.13" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
 <dimension x1="0" y1="0" x2="2.54" y2="2.54" x3="1.27" y3="-19.05" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
@@ -426,14 +422,10 @@ Port</text>
 <dimension x1="0" y1="0" x2="-8.89" y2="25.4" x3="-15.24" y3="12.7" textsize="1.778" textratio="15" layer="47" dtype="vertical" unit="inch"/>
 <dimension x1="16.383" y1="3.683" x2="18.669" y2="5.969" x3="19.05" y3="5.969" textsize="1.778" textratio="15" layer="47" dtype="leader" unit="inch"/>
 <text x="19.304" y="5.969" size="1.778" layer="47" ratio="15" align="center-left">0.13</text>
-<dimension x1="-85.09" y1="-7.62" x2="17.78" y2="-7.62" x3="-33.655" y3="-27.94" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
-<dimension x1="-85.09" y1="-7.62" x2="-48.895" y2="1.905" x3="-66.9925" y3="-17.78" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
-<dimension x1="-85.09" y1="-7.62" x2="-85.09" y2="119.38" x3="-99.06" y3="55.88" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
-<dimension x1="-85.09" y1="-7.62" x2="-18.415" y2="1.905" x3="-51.7525" y3="-22.86" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
-<dimension x1="-85.09" y1="-7.62" x2="-48.895" y2="1.905" x3="-88.9" y3="-2.8575" textsize="1.778" textratio="15" layer="47" dtype="vertical" unit="inch"/>
-<dimension x1="-85.09" y1="-7.62" x2="-48.895" y2="28.575" x3="-93.98" y3="10.4775" textsize="1.778" textratio="15" layer="47" dtype="vertical" unit="inch"/>
 <text x="13.335" y="5.2324" size="0.8128" layer="21" font="vector" ratio="15" align="bottom-center">LED</text>
 <text x="8.1026" y="38.608" size="0.8128" layer="21" font="vector" ratio="15" rot="R90" align="bottom-center">PWR</text>
+<wire x1="6.2992" y1="47.9552" x2="6.2992" y2="48.2092" width="0.2286" layer="41"/>
+<dimension x1="-54.61" y1="1.27" x2="-54.61" y2="29.21" x3="-58.42" y3="15.24" textsize="1.778" textratio="15" layer="47" dtype="vertical" unit="inch"/>
 </plain>
 <libraries>
 <library name="SparkFun-Capacitors">
@@ -5272,33 +5264,33 @@ design rules under a new name.</description>
 <approved hash="4,16,e488badbd629740b"/>
 <approved hash="4,16,f3fa85dfe78d6ff9"/>
 <approved hash="3,16,02282a1b041c1e12"/>
-<approved hash="4,1,61b603456cdbf5b4"/>
-<approved hash="4,1,b20803e9696f2622"/>
-<approved hash="4,1,7f64f94993d7ed9e"/>
 <approved hash="4,1,9a5a0e6d640b0e68"/>
-<approved hash="4,1,c5fe00656acb5cfc"/>
+<approved hash="4,1,7f64f94993d7ed9e"/>
+<approved hash="4,1,61b603456cdbf5b4"/>
 <approved hash="4,1,49c000196affd8fa"/>
+<approved hash="4,1,b20803e9696f2622"/>
 <approved hash="4,1,361203fd697ba220"/>
 <approved hash="4,1,ddac037954f749c6"/>
+<approved hash="4,1,c5fe00656acb5cfc"/>
 <approved hash="4,1,499d28b32b2576f5"/>
 <approved hash="5,1,ee8d1a8503975769"/>
 <approved hash="19,1,afbb3e7fbe7b2fbf"/>
 <approved hash="19,1,5915cfd94fddd911"/>
-<approved hash="19,1,e0ef65c365fcd89c"/>
-<approved hash="19,1,e9566d1a6d1dd155"/>
 <approved hash="19,1,17bd93b193b228ba"/>
-<approved hash="19,1,7d5a792a412d7d59"/>
-<approved hash="19,1,84b58785bf8683b2"/>
+<approved hash="19,1,e9566d1a6d1dd155"/>
+<approved hash="19,1,e0ef65c365fcd89c"/>
 <approved hash="19,1,749371cb49f474e0"/>
+<approved hash="19,1,84b58785bf8683b2"/>
+<approved hash="19,1,7d5a792a412d7d59"/>
 <approved hash="19,1,654bf6077604e548"/>
-<approved hash="4,1,c21c056eea08ded6"/>
-<approved hash="4,1,d95e3bcad724f654"/>
-<approved hash="4,1,85b6fefaee246d0c"/>
-<approved hash="4,1,ab2a0502f76ca7e8"/>
 <approved hash="4,1,3730050eef7823f2"/>
-<approved hash="4,1,655403beef18726e"/>
-<approved hash="4,1,4e220562ea3c5aa0"/>
+<approved hash="4,1,85b6fefaee246d0c"/>
 <approved hash="4,1,9cf80bdee5888cfa"/>
+<approved hash="4,1,c21c056eea08ded6"/>
+<approved hash="4,1,655403beef18726e"/>
+<approved hash="4,1,ab2a0502f76ca7e8"/>
+<approved hash="4,1,d95e3bcad724f654"/>
+<approved hash="4,1,4e220562ea3c5aa0"/>
 <approved hash="4,16,ddac037954f749c6"/>
 <approved hash="4,16,9a5a0e6d640b0e68"/>
 <approved hash="4,16,b20803e9696f2622"/>

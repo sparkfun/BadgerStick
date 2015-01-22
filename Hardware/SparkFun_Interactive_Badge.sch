@@ -33710,6 +33710,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <parts>
 <part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-LETTER" device="">
 <attribute name="DESIGNER" value="Shawn Hymel"/>
+<attribute name="VERSION" value="v10"/>
 </part>
 <part name="FID1" library="SparkFun-Aesthetics" deviceset="FIDUCIAL" device="1X2"/>
 <part name="FID2" library="SparkFun-Aesthetics" deviceset="FIDUCIAL" device="1X2"/>

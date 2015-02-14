@@ -59,7 +59,7 @@ void loop() {
      
     Serial.println( "Sending Station Identifier" );
     softy.begin(600);
-    byte msg[] = { 0x57, 0x01 }; 
+    byte msg[] = { 0x57, 0x02 }; 
     transmitMessage( msg, 2 );
     softy.end();
       

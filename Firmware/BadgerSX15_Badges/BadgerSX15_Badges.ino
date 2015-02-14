@@ -7,7 +7,9 @@
 #define DEBUG             1
 #define RX_TIMEOUT        200  // ms
 #define LED_PIN           13
+#define START_ANIMATIONS  4
 #define NUM_ANIMATIONS    4
+#define STATIONS_TO_WIN   4
 
 // Communications constants
 #define MAX_PAYLOAD_SIZE  8
@@ -114,10 +116,14 @@ void setup() {
   Serial.println(stations, BIN);
 #endif
 
-  // ***TODO***
-  // If we have a win condition, show animation and code
+  // If we have a win condition, scroll just the coupon code
+  if ( numStations() >= STATIONS_TO_WIN ) {
+    for ( i = 0; i < 3; i++ ) {
+      displayAnimation(3);
+    }
+  }
   
-  animation = 2;
+  animation = START_ANIMATIONS;
 }
 
 void loop() {
@@ -170,7 +176,7 @@ void loop() {
       Serial.println(EEPROM.read(ADDR_ID_L), HEX);
       Serial.print(F("New coupon code: "));
       Serial.print(EEPROM.read(ADDR_CODE_H), HEX);
-      Serial.print(EEPROM.read(ADDR_CODE_L), HEX);
+      Serial.println(EEPROM.read(ADDR_CODE_L), HEX);
 #endif
     }
   
@@ -188,23 +194,41 @@ void loop() {
       Serial.println(stations, BIN);
 #endif
 
-      // ***TODO***
-      // If we have win condition, show animation and code
-      // Else, show number of stations visited
+      // If win, show coupon. Then show number of stations
+      if ( numStations() >= STATIONS_TO_WIN ) {
+        displayAnimation(2);
+        for ( uint8_t j = 0; j < 3; j++ ) {
+          displayAnimation(3);
+        }
+      }
+      displayAnimation(1);
     }
   }
   
   // Choose and perform an animation
   displayAnimation(animation);
   animation++;
-  if ( animation >= 2 + NUM_ANIMATIONS ) {
-    animation = 2;
+  if ( animation >= START_ANIMATIONS + NUM_ANIMATIONS ) {
+    animation = START_ANIMATIONS;
   }
 }
 
 /***************************************************************
  * Functions
  **************************************************************/
+
+// Determine if we have visited enough stations
+uint8_t numStations() {
+  
+  uint8_t num_stations = 0;
+  uint8_t i;
+  
+  for ( i = 0; i < 16; i++ ) {
+    num_stations += (stations >> i) & 0x0001;
+  }
+
+  return num_stations;
+}
 
 // Perform an animation based on the number given
 void displayAnimation(uint8_t n) {
@@ -213,15 +237,26 @@ void displayAnimation(uint8_t n) {
       // Communicating
       break;
     case 1:
-      // Win animation
+      // Scroll number of stations
+      showNumStations();
       break;
     case 2:
+      // Win animation
+      Plex.scrollText("You win!", 1);
+      delay(5000);
+      Plex.stopScrolling();
+      break;
+    case 3:
+      // Scroll coupon code
+      showCoupon();
+      break;
+    case 4:
       // SX Create scroll
       Plex.scrollText("SX Create", 1);
       delay(6000);
       Plex.stopScrolling();
       break;
-    case 3:
+    case 5:
       // SparkFun Logo
       Plex.drawBitmap(sparkfun_logo);
       Plex.display();
@@ -229,13 +264,13 @@ void displayAnimation(uint8_t n) {
       Plex.clear();
       Plex.display();
       break;
-    case 4:
+    case 6:
       // Scroll SparkFun
       Plex.scrollText("SparkFun", 1);
       delay(6000);
       Plex.stopScrolling();
       break;
-    case 5:
+    case 7:
       // Explosions
       uint8_t i;
       uint8_t x;
@@ -258,6 +293,99 @@ void displayAnimation(uint8_t n) {
     default:
       break;
   }
+}
+
+// Calculate the number of stations visited and display it
+void showNumStations() {
+  
+  char c_tens = 0;
+  char c_ones = 0;
+  uint8_t n_stations = numStations();
+  char msg[] = {'V', 'i', 's', 'i', 't', 'e', 'd', ':', ' ',
+                0, '\0', '\0'};
+  
+  // Create ASCII characters out of the digits
+  c_tens = 0x30 + (n_stations / 10);
+  c_ones = 0x30 + (n_stations % 10);
+  
+  // Don't display leading 0
+  if ( c_tens == 0x30 ) {
+    msg[9] = c_ones;
+  } else {
+    msg[9] = c_tens;
+    msg[10] = c_ones;
+  }
+  
+#if DEBUG
+  Serial.print(F("Showing 'Visited: "));
+  Serial.print(msg);
+  Serial.println("'");
+#endif
+
+  // Scroll message
+  Plex.scrollText(msg, 1);
+  delay(6500);
+  Plex.stopScrolling();
+}
+
+// Scroll the coupon code across the LED display
+void showCoupon() {
+  
+  uint8_t val;
+  char code[] = { 'S', 'X', '1', '5', 0, 0, 0, 0, '\0' };
+  uint8_t i;
+  
+  // Read in coupon code
+  val = EEPROM.read(ADDR_CODE_H);
+  code[4] = (val >> 4) & 0x0F;
+  code[5] = val & 0x0F;
+  
+  val = EEPROM.read(ADDR_CODE_L);
+  code[6] = (val >> 4) & 0x0F;
+  code[7] = val & 0x0F;
+  
+#if DEBUG
+  Serial.print("Code read as: ");
+  for ( i = 0; i < 8; i++ ) {
+    Serial.print(code[i], HEX);
+  }
+  Serial.println();
+#endif
+
+  // Calculate ASCII version of each of the characters
+  for ( i = 4; i < 8; i++ ) {
+    if ( (0x0A <= code[i]) && (code[i] <= 0x0F) ) {
+      code[i] = 0x41 + (code[i] - 0xA);
+    } else if ( (0 <= code[i]) && (code[i] <= 9) ) {
+      code[i] = 0x30 + code[i];
+    } else {
+      code[i] = 0x30;
+    }
+  }
+  
+#if DEBUG
+  Serial.print("Printing code: ");
+  for ( i = 0; i < 8; i++ ) {
+    Serial.print(code[i]);
+  }
+  Serial.println();
+#endif
+
+  // Scroll message
+  Plex.scrollText(code, 1);
+  delay(6000);
+  Plex.stopScrolling();
+}
+
+// Read the coupon code from EEPROM
+uint16_t readCoupon() {
+  
+  uint16_t val;
+  
+  val = EEPROM.read(ADDR_CODE_L);
+  val ^= (EEPROM.read(ADDR_CODE_H) << 8);
+  
+  return val;
 }
 
 // Read the stations the badge has visited from EEPROM

@@ -1,3 +1,49 @@
+/****************************************************************
+BadgerSX15_Badges.ino
+SX Create 2015 Badger Game
+Shawn Hymel @ SparkFun Electronics
+Nick Poole @ SparkFun Electronics
+Kade Drobeck @ SparkFun Electronics
+February 16, 2015
+https://github.com/sparkfun/Interactive_Badges
+
+Plays the #BadgerHack game. Take the badge to the various
+stations located around SX Create to accumulate points. When you
+reach the required number of stations, the badge unlocks and
+displays a coupon code to be used at sparkfun.com.
+
+Hardware Connections:
+
+IMPORTANT:  The Charlieplex LED board is designed for 2.0 - 3.3V!
+            Higher voltages can damage the LEDs.
+
+ Arduino Pin | Charlieplex Board
+ ------------|------------------
+      2      |         2
+      3      |         3
+      4      |         4
+      5      |         5
+      6      |         6
+      7      |         7
+      8      |         8
+      9      |         9
+
+Resources:
+Include SoftwareSerial.h, Chaplex.h, SparkFun_LED_8x7.h, EEPROM.h
+The Chaplex library can be found at: 
+http://playground.arduino.cc/Code/Chaplex
+
+Development environment specifics:
+Written in Arduino 1.0.6
+Tested with SparkFun BadgerStick (Interactive Badge)
+
+This code is beerware; if you see me (or any other SparkFun 
+employee) at the local, and you've found our code helpful, please
+buy us a round!
+
+Distributed as-is; no warranty is given.
+****************************************************************/
+
 #include <SoftwareSerial.h>
 #include <SparkFun_LED_8x7.h>
 #include <Chaplex.h>
@@ -42,13 +88,13 @@ uint16_t stations;
 uint16_t r;
 uint8_t animation;
 uint8_t g_i;
-byte sparkfun_logo[] = { 0,0,0,0,1,0,0,0,
-                         0,0,0,0,1,0,1,0,
-                         0,0,1,0,1,1,1,0,
-                         0,0,1,1,1,1,1,0,
-                         0,0,1,1,1,1,0,0,
-                         0,0,1,1,0,0,0,0,
-                         0,0,1,0,0,0,0,0 };
+const byte sparkfun_logo[] = { 0,0,0,0,1,0,0,0,
+                               0,0,0,0,1,0,1,0,
+                               0,0,1,0,1,1,1,0,
+                               0,0,1,1,1,1,1,0,
+                               0,0,1,1,1,1,0,0,
+                               0,0,1,1,0,0,0,0,
+                               0,0,1,0,0,0,0,0 };
 
 // Global variables for production test
 int A0PinSet[] = {2, 4, 6, 8, 10, 16, 18};//7 pins
@@ -117,9 +163,11 @@ void setup() {
 #endif
 
   // If we have a win condition, scroll just the coupon code
-  if ( numStations() >= STATIONS_TO_WIN ) {
-    for ( i = 0; i < 3; i++ ) {
-      displayAnimation(3);
+  if ( (badge_id[1] != 0) || (badge_id[2] != 0) ) {
+    if ( numStations() >= STATIONS_TO_WIN ) {
+      for ( i = 0; i < 3; i++ ) {
+        displayAnimation(3);
+      }
     }
   }
   
@@ -194,11 +242,13 @@ void loop() {
       Serial.println(stations, BIN);
 #endif
 
-      // If win, show coupon. Then show number of stations
-      if ( numStations() >= STATIONS_TO_WIN ) {
-        displayAnimation(2);
-        for ( uint8_t j = 0; j < 3; j++ ) {
-          displayAnimation(3);
+      // If win, show coupon. Then show number of stations.
+      if ( (badge_id[1] != 0) || (badge_id[2] != 0) ) {
+        if ( numStations() >= STATIONS_TO_WIN ) {
+          displayAnimation(2);
+          for ( uint8_t j = 0; j < 3; j++ ) {
+            displayAnimation(3);
+          }
         }
       }
       displayAnimation(1);
@@ -252,23 +302,23 @@ void displayAnimation(uint8_t n) {
       showCoupon();
       break;
     case 4:
+      // SparkFun Logo
+      Plex.drawBitmap(sparkfun_logo);
+      Plex.display();
+      delay(3000);
+      Plex.clear();
+      Plex.display();
+      break;
+    case 5:
       // SX Create scroll
       Plex.scrollText("SX Create", 1);
       delay(6000);
       Plex.stopScrolling();
       break;
-    case 5:
+    case 6:
       // Make it rain!!!
       makeItRain(50);
       delay(500);
-      Plex.clear();
-      Plex.display();
-      break;
-    case 6:
-      // SparkFun Logo
-      Plex.drawBitmap(sparkfun_logo);
-      Plex.display();
-      delay(3000);
       Plex.clear();
       Plex.display();
       break;
@@ -683,6 +733,12 @@ void check_results()
     pinMode(STAT, OUTPUT);
     digitalWrite(STAT, HIGH);
     EEPROM.write(ADDR_PROD_TEST, 0xAB);
+    
+    // Erase other EEPROM
+    for ( int i = 0; i < 10; i++ ) {
+      EEPROM.write(i, 0);
+    }
+    
     delay(5000);
    }      
 }

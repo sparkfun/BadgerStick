@@ -1,5 +1,52 @@
+/****************************************************************
+BadgerSX15_Badges.ino
+SX Create 2015 Badger Game
+Shawn Hymel @ SparkFun Electronics
+Nick Poole @ SparkFun Electronics
+February 16, 2015
+https://github.com/sparkfun/Interactive_Badges
+
+Station code for the #BadgerHack game. Badges brought to each
+station will receive a point.
+
+Hardware Connections:
+
+IMPORTANT:  The Charlieplex LED board is designed for 2.0 - 3.3V!
+            Higher voltages can damage the LEDs.
+
+ Arduino Pin | Charlieplex Board
+ ------------|------------------
+      2      |         2
+      3      |         3
+      4      |         4
+      5      |         5
+      6      |         6
+      7      |         7
+      8      |         8
+      9      |         9
+
+Resources:
+Include SoftwareSerial.h, EEPROM.h
+The Chaplex library can be found at: 
+http://playground.arduino.cc/Code/Chaplex
+
+Development environment specifics:
+Written in Arduino 1.0.6
+Tested with SparkFun BadgerStick (Interactive Badge)
+
+This code is beerware; if you see me (or any other SparkFun 
+employee) at the local, and you've found our code helpful, please
+buy us a round!
+
+Distributed as-is; no warranty is given.
+****************************************************************/
+
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
+
+// Constants
+#define STATION_ID        1    // 1 through 15
+#define RX_TIMEOUT        200  // ms
 
 // Communications constants
 #define MAX_PAYLOAD_SIZE  8
@@ -9,9 +56,6 @@
 #define SERIAL_EOF        0xAA
 #define ID_ADDRESS_L      0
 #define ID_ADDRESS_H      1
-
-// Constants
-#define RX_TIMEOUT        200  // ms
 
 // Global variables
 SoftwareSerial softy(11, 10);
@@ -59,7 +103,7 @@ void loop() {
      
     Serial.println( "Sending Station Identifier" );
     softy.begin(600);
-    byte msg[] = { 0x57, 0x02 }; 
+    byte msg[] = { 0x57, STATION_ID }; 
     transmitMessage( msg, 2 );
     softy.end();
       

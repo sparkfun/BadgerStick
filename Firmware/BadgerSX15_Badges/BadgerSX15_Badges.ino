@@ -4,11 +4,11 @@
 #include <EEPROM.h>
 
 // Constants
-#define DEBUG             1
+#define DEBUG             0
 #define RX_TIMEOUT        200  // ms
 #define LED_PIN           13
 #define START_ANIMATIONS  4
-#define NUM_ANIMATIONS    4
+#define NUM_ANIMATIONS    3
 #define STATIONS_TO_WIN   4
 
 // Communications constants
@@ -241,7 +241,8 @@ void displayAnimation(uint8_t n) {
       showNumStations();
       break;
     case 2:
-      // Win animation
+      // Win animation (explosions + text)
+      showExplosions();
       Plex.scrollText("You win!", 1);
       delay(5000);
       Plex.stopScrolling();
@@ -257,6 +258,13 @@ void displayAnimation(uint8_t n) {
       Plex.stopScrolling();
       break;
     case 5:
+      // Make it rain!!!
+      makeItRain(50);
+      delay(500);
+      Plex.clear();
+      Plex.display();
+      break;
+    case 6:
       // SparkFun Logo
       Plex.drawBitmap(sparkfun_logo);
       Plex.display();
@@ -264,35 +272,90 @@ void displayAnimation(uint8_t n) {
       Plex.clear();
       Plex.display();
       break;
-    case 6:
-      // Scroll SparkFun
-      Plex.scrollText("SparkFun", 1);
-      delay(6000);
-      Plex.stopScrolling();
-      break;
-    case 7:
-      // Explosions
-      uint8_t i;
-      uint8_t x;
-      uint8_t y;
-      uint8_t radius;
-      for ( i = 0; i < 10; i++ ) {
-        x = random(0, 8);
-        y = random(0, 7);
-        for ( radius = 0; radius < 12; radius++ ) {
-          Plex.clear();
-          Plex.circle(x, y, radius);
-          Plex.circle(x, y, radius + 1);
-          Plex.display();
-          delay(30);
-        }
-      }
-      Plex.clear();
-      Plex.display();
-      break;
     default:
       break;
   }
+}
+
+// "Rain" pixels. Param wait = ms between frames
+void makeItRain(uint8_t wait) {
+  
+  int r;
+  int pix;
+  uint8_t fill_count = 0;
+  byte screen_filled = 0;
+  byte frame_buf[] = { 0,0,0,0,0,0,0,0,
+                      0,0,0,0,0,0,0,0,
+                      0,0,0,0,0,0,0,0,
+                      0,0,0,0,0,0,0,0,
+                      0,0,0,0,0,0,0,0,
+                      0,0,0,0,0,0,0,0,
+                      0,0,0,0,0,0,0,0 };
+                      
+  // Continue to animate until the screen is filled with pixels
+  while ( !screen_filled ) {
+    
+    // Find an open column
+    do {
+      r = random(0, 8);
+    } while ( frame_buf[r] != 0 );
+    
+    // Start animating the pixel down that column
+    frame_buf[r] = 1;
+    Plex.drawBitmap(frame_buf);
+    Plex.display();
+    
+    // Scan all pixels, find the last open pixel in that column
+    for ( pix = 55; pix >= 0; pix-- ) {
+      if ( frame_buf[pix] == 1 ) {
+        if ( pix > 47 || frame_buf[pix + 8] == 1 ) {
+          // Do nothing
+        } else {
+          frame_buf[pix] = 0;
+          frame_buf[pix + 8] = 1;
+        }
+      }
+    }
+    
+    // Check to see fi the screen is filled
+    fill_count = 0;
+    for ( pix = 55; pix >= 0; pix-- ) {
+      fill_count += frame_buf[pix];
+    }
+    if ( fill_count >= 56 ) {
+      screen_filled = 1;
+    }
+    
+    // Draw the buffer
+    Plex.clear();
+    Plex.drawBitmap(frame_buf);
+    Plex.display();
+    delay(wait);
+  }
+}
+
+// Draw some explosions on the LED array
+void showExplosions() {
+  
+  uint8_t i;
+  uint8_t x;
+  uint8_t y;
+  uint8_t radius;
+  
+  // Draw 2 circles expanding outward starting from a random spot
+  for ( i = 0; i < 10; i++ ) {
+    x = random(0, 8);
+    y = random(0, 7);
+    for ( radius = 0; radius < 12; radius++ ) {
+      Plex.clear();
+      Plex.circle(x, y, radius);
+      Plex.circle(x, y, radius + 1);
+      Plex.display();
+      delay(30);
+    }
+  }
+  Plex.clear();
+  Plex.display();
 }
 
 // Calculate the number of stations visited and display it

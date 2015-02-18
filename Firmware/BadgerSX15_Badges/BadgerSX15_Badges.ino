@@ -111,7 +111,6 @@ int pin_read1error = 0;
 int pin_read2error = 0;
 int A6val;
 int A7val;
-boolean test_mode = false;
 
 /***************************************************************
  * Main
@@ -123,7 +122,7 @@ void setup() {
   
   // Perform production test
   while ( EEPROM.read(ADDR_PROD_TEST) != 0xAB ) {
-    test_mode_check();
+    test_code();
   }
   
   // Blink a few times to show that we are alive
@@ -778,26 +777,6 @@ void test_code()
     delay(100);
     check_results();
     delay(100);
-}
-///////////////////////////////////////////////////////////////////////////////////////////////
-void test_mode_check()
-{
- test_mode = true;
- if((EEPROM.read(ADDR_PROD_TEST) == 0xAB))
-   {
-    test_mode = false;
-   }
- if(test_mode)
-   {
-    test_code();
-   }
- if(!(test_mode))
-   {
-    pinMode(STAT, OUTPUT);
-    digitalWrite(STAT, HIGH);
-    delay(1000);
-    digitalWrite(STAT, LOW);
-   } 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void pin_default()

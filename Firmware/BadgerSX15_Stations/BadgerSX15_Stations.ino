@@ -1,52 +1,10 @@
-/****************************************************************
-BadgerSX15_Badges.ino
-SX Create 2015 Badger Game
-Shawn Hymel @ SparkFun Electronics
-Nick Poole @ SparkFun Electronics
-February 16, 2015
-https://github.com/sparkfun/Interactive_Badges
-
-Station code for the #BadgerHack game. Badges brought to each
-station will receive a point.
-
-Hardware Connections:
-
-IMPORTANT:  The Charlieplex LED board is designed for 2.0 - 3.3V!
-            Higher voltages can damage the LEDs.
-
- Arduino Pin | Charlieplex Board
- ------------|------------------
-      2      |         2
-      3      |         3
-      4      |         4
-      5      |         5
-      6      |         6
-      7      |         7
-      8      |         8
-      9      |         9
-
-Resources:
-Include SoftwareSerial.h, EEPROM.h
-The Chaplex library can be found at: 
-http://playground.arduino.cc/Code/Chaplex
-
-Development environment specifics:
-Written in Arduino 1.0.6
-Tested with SparkFun BadgerStick (Interactive Badge)
-
-This code is beerware; if you see me (or any other SparkFun 
-employee) at the local, and you've found our code helpful, please
-buy us a round!
-
-Distributed as-is; no warranty is given.
-****************************************************************/
-
+#include <Adafruit_NeoPixel.h>
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 
-// Constants
-#define STATION_ID        1    // 1 through 15
-#define RX_TIMEOUT        200  // ms
+#define PIN 6
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(3, PIN, NEO_GRB + NEO_KHZ800);
 
 // Communications constants
 #define MAX_PAYLOAD_SIZE  8
@@ -57,8 +15,14 @@ Distributed as-is; no warranty is given.
 #define ID_ADDRESS_L      0
 #define ID_ADDRESS_H      1
 
+// Constants
+#define RX_TIMEOUT        200  // ms
+
 // Global variables
-SoftwareSerial softy(11, 10);
+SoftwareSerial softy(10, 9);
+int c_0 = 0;
+int c_1 = 100;
+int c_2 = 200;
 
 /***************************************************************
  * Main
@@ -68,6 +32,8 @@ void setup() {
   
   // Initialize serial comms
   Serial.begin(9600);
+  strip.begin();
+  strip.show(); 
   
 }
 
@@ -86,30 +52,41 @@ void loop() {
   // Get a message
   softy.begin(600);
   bytes_received = receiveMessage(in_msg, RX_TIMEOUT);
-  Serial.print("Bytes: ");
-  Serial.println(bytes_received);
+ // Serial.print("Bytes: ");
+ // Serial.println(bytes_received);
   softy.end();
   
+  c_0 = c_0 + 10;   c_1 = c_1 + 10;   c_2 = c_2 + 10;
+  if ( c_0 > 255 ) { c_0 = 0; }  
+  if ( c_1 > 255 ) { c_1 = 0; }  
+  if ( c_2 > 255 ) { c_2 = 0; }  
+  strip.setPixelColor( 0 , strip.Color( c_0, c_0, c_0 ) );
+  strip.setPixelColor( 1 , strip.Color( c_1, c_1, c_1 ) );
+  strip.setPixelColor( 2 , strip.Color( c_2, c_2, c_2 ) );
+  strip.show();   
+   
   // If we received a message, test it
   
   if ( bytes_received > 0 ) {
     
-    Serial.println( "Something's Talking..." );
+   // Serial.println( "Something's Talking..." );
     badge_id = extract_ID(in_msg, bytes_received);
        
-     Serial.print( "It's badge #" );
-     Serial.print( badge_id );
-     Serial.println( "!" );
+   //  Serial.print( "It's badge #" );
+   //  Serial.print( badge_id );
+   //  Serial.println( "!" );
      
-    Serial.println( "Sending Station Identifier" );
+   // Serial.println( "Sending Station Identifier" );
     softy.begin(600);
-    byte msg[] = { 0x57, STATION_ID }; 
+    byte msg[] = { 0x57, 0x04 }; // STATION ID HERE
     transmitMessage( msg, 2 );
     softy.end();
+    
+    rainbowCycle(20);
       
     }
   
-  Serial.println();
+  //Serial.println();
  
 }
 
@@ -261,4 +238,28 @@ word extract_ID (byte msg[], uint8_t len) {
   
 }
 
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(wait);
+  }
+}
+
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+   return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else if(WheelPos < 170) {
+    WheelPos -= 85;
+   return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  } else {
+   WheelPos -= 170;
+   return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  }
+}
 

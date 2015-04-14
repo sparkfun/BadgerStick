@@ -35385,7 +35385,10 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <text x="107.696" y="36.576" size="2.54" layer="97">Battery Connector</text>
 </plain>
 <instances>
-<instance part="FRAME1" gate="G$1" x="0" y="0"/>
+<instance part="FRAME1" gate="G$1" x="0" y="0">
+<attribute name="DESIGNER" x="166.37" y="11.43" size="2.54" layer="94"/>
+<attribute name="VERSION" x="238.76" y="7.62" size="2.54" layer="94"/>
+</instance>
 <instance part="FRAME1" gate="V" x="147.32" y="0"/>
 <instance part="FID1" gate="G$1" x="246.38" y="33.02"/>
 <instance part="FID2" gate="G$1" x="246.38" y="27.94"/>

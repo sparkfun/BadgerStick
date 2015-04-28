@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.01" unitdist="inch" unit="inch" style="dots" multiple="1" display="yes" altdistance="0.005" altunitdist="inch" altunit="inch"/>
+<grid distance="0.001" unitdist="inch" unit="inch" style="dots" multiple="1" display="yes" altdistance="0.0001" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="yes"/>
@@ -153,14 +153,14 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="17.78" y2="0" width="0.254" layer="20"/>
-<wire x1="0" y1="0" x2="0" y2="53.213" width="0.254" layer="20"/>
-<wire x1="17.78" y1="0" x2="17.78" y2="53.213" width="0.254" layer="20"/>
-<wire x1="2.667" y1="66.04" x2="15.113" y2="66.04" width="0.254" layer="20"/>
-<wire x1="2.667" y1="66.04" x2="2.667" y2="55.88" width="0.254" layer="20"/>
-<wire x1="2.667" y1="55.88" x2="0" y2="53.213" width="0.254" layer="20"/>
-<wire x1="15.113" y1="66.04" x2="15.113" y2="55.88" width="0.254" layer="20"/>
-<wire x1="15.113" y1="55.88" x2="17.78" y2="53.213" width="0.254" layer="20"/>
+<wire x1="0" y1="0" x2="17.78" y2="0" width="0.2032" layer="20"/>
+<wire x1="0" y1="0" x2="0" y2="53.213" width="0.2032" layer="20"/>
+<wire x1="17.78" y1="0" x2="17.78" y2="53.213" width="0.2032" layer="20"/>
+<wire x1="2.667" y1="66.04" x2="15.113" y2="66.04" width="0.2032" layer="20"/>
+<wire x1="2.667" y1="66.04" x2="2.667" y2="55.88" width="0.2032" layer="20"/>
+<wire x1="2.667" y1="55.88" x2="0" y2="53.213" width="0.2032" layer="20"/>
+<wire x1="15.113" y1="66.04" x2="15.113" y2="55.88" width="0.2032" layer="20"/>
+<wire x1="15.113" y1="55.88" x2="17.78" y2="53.213" width="0.2032" layer="20"/>
 <wire x1="-11.43" y1="5.08" x2="-13.97" y2="5.08" width="0.254" layer="51"/>
 <wire x1="-13.97" y1="5.08" x2="-17.78" y2="1.27" width="0.254" layer="51"/>
 <wire x1="-17.78" y1="1.27" x2="-54.61" y2="1.27" width="0.254" layer="51"/>
@@ -385,6 +385,8 @@ Port</text>
 <dimension x1="2.667" y1="66.04" x2="15.113" y2="66.04" x3="8.89" y3="68.58" textsize="1.778" textratio="15" layer="47" dtype="horizontal" unit="inch"/>
 <dimension x1="15.113" y1="55.88" x2="16.256" y2="0" x3="35.56" y3="27.94" textsize="1.778" textratio="15" layer="47" dtype="vertical" unit="inch"/>
 <text x="-50.8" y="-24.13" size="1.778" layer="47" font="vector" ratio="15">All measurements in inches</text>
+<rectangle x1="6.1722" y1="53.594" x2="6.4262" y2="53.7972" layer="41"/>
+<text x="8.8646" y="11.1252" size="0.8128" layer="21" font="vector" ratio="15" rot="R90" align="center">RESET</text>
 </plain>
 <libraries>
 <library name="SparkFun-Capacitors">
@@ -4579,7 +4581,7 @@ design rules under a new name.</description>
 <vertex x="0" y="53.213"/>
 </polygon>
 <via x="14.6304" y="19.05" extent="1-16" drill="0.508"/>
-<via x="8.89" y="9.906" extent="1-16" drill="0.508"/>
+<via x="8.89" y="10.541" extent="1-16" drill="0.508"/>
 <via x="6.223" y="9.906" extent="1-16" drill="0.508"/>
 <via x="2.413" y="22.733" extent="1-16" drill="0.508"/>
 <via x="2.413" y="20.447" extent="1-16" drill="0.508"/>
@@ -5295,7 +5297,6 @@ design rules under a new name.</description>
 <approved hash="4,16,ab2a0502f76ca7e8"/>
 <approved hash="4,16,4e220562ea3c5aa0"/>
 <approved hash="4,16,d95e3bcad724f654"/>
-<approved hash="3,16,2a653965397c3864"/>
 <approved hash="4,1,7f64f94993d7ed9e"/>
 <approved hash="4,1,9a5a0e6d640b0e68"/>
 <approved hash="4,1,c5fe00656acb5cfc"/>
@@ -5305,16 +5306,6 @@ design rules under a new name.</description>
 <approved hash="4,1,361203fd697ba220"/>
 <approved hash="4,1,49c000196affd8fa"/>
 <approved hash="4,1,499d28b32b2576f5"/>
-<approved hash="5,1,ee8d1a8503975769"/>
-<approved hash="19,1,afbb3e7fbe7b2fbf"/>
-<approved hash="19,1,5915cfd94fddd911"/>
-<approved hash="19,1,17bd93b193b228ba"/>
-<approved hash="19,1,e0ef65c365fcd89c"/>
-<approved hash="19,1,e9566d1a6d1dd155"/>
-<approved hash="19,1,749371cb49f474e0"/>
-<approved hash="19,1,7d5a792a412d7d59"/>
-<approved hash="19,1,84b58785bf8683b2"/>
-<approved hash="19,1,654bf6077604e548"/>
 <approved hash="4,1,d6e703bee998c2fd"/>
 <approved hash="4,1,bfc506e2e9dcab1f"/>
 <approved hash="4,1,8821016ae20490a3"/>
@@ -5336,6 +5327,47 @@ design rules under a new name.</description>
 <approved hash="4,16,693f190ef76879f5"/>
 <approved hash="4,16,bfc506e2e9dcab1f"/>
 <approved hash="4,16,8821016ae20490a3"/>
+<approved hash="3,16,2a653965397c3864"/>
+<approved hash="4,1,16549a5a659de495"/>
+<approved hash="4,1,3e1eb20850cbc147"/>
+<approved hash="4,1,f5a27f6482370adb"/>
+<approved hash="4,1,ed8861b69e491229"/>
+<approved hash="4,1,ba1c3612ccd5455d"/>
+<approved hash="4,1,44c0c5fe3ab1b981"/>
+<approved hash="4,1,c0c649c0b6833d8f"/>
+<approved hash="4,1,51faddac227fae33"/>
+<approved hash="4,1,f91a885c466c492f"/>
+<approved hash="5,1,ee8d1a8503975769"/>
+<approved hash="19,1,afbb3e7fbe7b2fbf"/>
+<approved hash="19,1,5915cfd94fddd911"/>
+<approved hash="19,1,e9566d1a6d1dd155"/>
+<approved hash="19,1,17bd93b193b228ba"/>
+<approved hash="19,1,e0ef65c365fcd89c"/>
+<approved hash="19,1,84b58785bf8683b2"/>
+<approved hash="19,1,749371cb49f474e0"/>
+<approved hash="19,1,7d5a792a412d7d59"/>
+<approved hash="19,1,654bf6077604e548"/>
+<approved hash="4,1,15734673b90ae430"/>
+<approved hash="4,1,4471191de6bcbeae"/>
+<approved hash="4,1,fda9b8355af402e6"/>
+<approved hash="4,1,36c56e819140c902"/>
+<approved hash="4,1,2e2f72cf8c16d15c"/>
+<approved hash="4,1,c8679d6762ae3a94"/>
+<approved hash="4,16,c0c649c0b6833d8f"/>
+<approved hash="4,16,3e1eb20850cbc147"/>
+<approved hash="4,16,44c0c5fe3ab1b981"/>
+<approved hash="4,16,16549a5a659de495"/>
+<approved hash="4,16,f5a27f6482370adb"/>
+<approved hash="4,16,ed8861b69e491229"/>
+<approved hash="4,16,51faddac227fae33"/>
+<approved hash="4,16,ba1c3612ccd5455d"/>
+<approved hash="4,16,f91a885c466c492f"/>
+<approved hash="4,16,4471191de6bcbeae"/>
+<approved hash="4,16,36c56e819140c902"/>
+<approved hash="4,16,c8679d6762ae3a94"/>
+<approved hash="4,16,fda9b8355af402e6"/>
+<approved hash="4,16,2e2f72cf8c16d15c"/>
+<approved hash="4,16,15734673b90ae430"/>
 </errors>
 </board>
 </drawing>

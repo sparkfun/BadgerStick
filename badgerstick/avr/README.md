@@ -3,7 +3,7 @@ Custom bootloader and board definition file
 Version
 -------
 
-**v0.1**
+**v0.2**
 
 Known Issues
 ------------
@@ -13,7 +13,7 @@ Getting Started
 
 I want to upload Arduino sketches to my BadgerStick (which already has the bootloader).
 
-* Copy boards.txt to <Arduino folder>/hardware/arduino
+* Copy the badgerstick directory to <Arduino folder>/hardware/
 * Open the Arduino program
 * BadgerStick should appear under Tools -> Board
 
@@ -35,12 +35,16 @@ I want to burn the bootloader onto the BadgerStick.
 What Did You Do?
 ----------------
 
-To create a custom board for the Arduino program, we added a section under "# Added by SparkFun electronics to support the BadgerStick" in boards.txt.
+To create a custom board for the Arduino program, we created a new directory with hardware definitions.
 
 To create a custom bootloader, we changed a few lines of code in ATmegaBOOT_168.c under "// Fix the EEWE bit definition..." in order to fix a compile error (EEPE not defined). We also changed the OPTIMIZE setting to -Os to reduce the size of the bootloader file. Finally, we added a new Make target under "# Added 4MHz version of the 328P" with new fuse settings to allow for lower voltage and 4MHz operation.
 
 Version History
 ---------------
+
+**v0.2**
+
+* Created separate hardware directory to support Arduino IDE v1.6.3
 
 **v0.1**
 

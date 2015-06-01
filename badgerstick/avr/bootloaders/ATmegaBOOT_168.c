@@ -93,8 +93,9 @@
 /* set the UART baud rate */
 /* 20060803: hacked by DojoCorp */
 //#define BAUD_RATE   115200
+//#define BAUD_RATE   19200
 #ifndef BAUD_RATE
-#define BAUD_RATE   19200
+#define BAUD_RATE   250000
 #endif
 
 

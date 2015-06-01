@@ -2,12 +2,14 @@ badger.name=BadgerStick (3.3V, 4 MHz)
 
 badger.upload.tool=avrdude
 badger.upload.protocol=arduino
+badger.upload.maximum_data_size=2048
+badger.upload.maximum_size=30720
+badger.upload.speed=250000
 
 badger.bootloader.tool=avrdude
 badger.bootloader.low_fuses=0xFD
 badger.bootloader.high_fuses=0xDA
 badger.bootloader.extended_fuses=0x06
-badger.bootloader.path=atmega
 badger.bootloader.file=ATmegaBOOT_168_atmega328_pro_4MHz.hex
 badger.bootloader.unlock_bits=0x3F
 badger.bootloader.lock_bits=0x0F

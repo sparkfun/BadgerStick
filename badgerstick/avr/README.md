@@ -22,7 +22,7 @@ I want to compile the BadgerStick bootloader.
 * Copy ATmegaBOOT_168.c and the Makefile located in bootloaders/atmega to <Arduino folder>/hardware/arduino/bootloaders/atmega
 * Open a command terminal
 * Navigate to <Arduino folder>/hardware/arduino/bootloaders/atmega
-* Enter the command: make atmega328_pro4
+* Enter the command: make
 
 I want to burn the bootloader onto the BadgerStick.
 
@@ -45,6 +45,7 @@ Version History
 **v0.2**
 
 * Created separate hardware directory to support Arduino IDE v1.6.3
+* Changed upload speed to 250000
 
 **v0.1**
 

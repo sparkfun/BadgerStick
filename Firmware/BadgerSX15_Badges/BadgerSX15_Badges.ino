@@ -58,7 +58,7 @@ Distributed as-is; no warranty is given.
 #define STATIONS_TO_WIN   4
 
 // Communications constants
-#define MAX_PAYLOAD_SIZE  8
+#define MAX_PAYLOAD_SIZE  21
 #define IN_BUF_MAX        MAX_PAYLOAD_SIZE + 2
 #define SERIAL_BEGIN      0x55
 #define SERIAL_SOF        0xD5

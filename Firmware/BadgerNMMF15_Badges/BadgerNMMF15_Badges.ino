@@ -47,12 +47,14 @@ Distributed as-is; no warranty is given.
 #include <Chaplex.h>
 
 // Parameters
-#define DEBUG             1
+#define DEBUG             0
 #define LED_PIN           13
 #define MAX_ACTIONS       15    // Number of actions per loop
 #define MAX_TEXT_LENGTH   20    // Number of characters (>7)
 #define BITMAP_DISP_TIME  2000  // Time (ms) to pause on bitmap
-#define FRAME_DISP_TIME   100   // Time (ms) to pause on frame
+#define FRAME_DISP_TIME   200   // Time (ms) to pause on frame
+#define CONWAY_NUM_GENS   10    // Number of generations
+#define CONWAY_DISP_TIME  100   // Time (ms) to pause generation
 
 // Communications constants
 #define MAX_PAYLOAD_SIZE  21
@@ -64,6 +66,7 @@ Distributed as-is; no warranty is given.
 #define HEADER_BITMAP     0x03
 #define HEADER_FRAME      0x04
 #define HEADER_CONWAY     0x05
+#define HEADER_ANIMATION  0x06
 #define ACK               0xAC
 
 // Other constants
@@ -155,6 +158,8 @@ void setup() {
   addAction(HEADER_FRAME, ptr, 0);
   ptr = (const char *)sparkfun_logo;
   addAction(HEADER_BITMAP, ptr, 0);
+  ptr = (const char *)sparkfun_logo;
+  addAction(HEADER_CONWAY, ptr, 0);
   ptr = initial_text;
   addAction(HEADER_TEXT, ptr, strlen(ptr));
 
@@ -223,6 +228,12 @@ bool addAction(uint8_t action, const void *buf, uint8_t len) {
       memcpy(actions_table + offset, buf, BITMAP_SIZE);
       break;
       
+    // Add Conway's game to buffer
+    case HEADER_CONWAY:
+      actions[action_len] = HEADER_CONWAY;
+      memcpy(actions_table + offset, buf, BITMAP_SIZE);
+      break;
+      
     // Unknown case. Exit.
     default:
       return false;
@@ -270,6 +281,11 @@ void performAction(uint8_t index) {
       showBitmap(offset, FRAME_DISP_TIME);
       break;
       
+    // Play Conway's game of life
+    case HEADER_CONWAY:
+      playConway(offset, CONWAY_NUM_GENS);
+      break;
+      
     // Unknown index. End.
     default:
       return;
@@ -280,6 +296,7 @@ void performAction(uint8_t index) {
  * Animation/Display Functions
  **************************************************************/
 
+// Display a bitmap on the LEDs for a given amount of time
 void showBitmap(uint16_t offset, unsigned long time) {
   
   byte bitmap_buf[NUM_LEDS];
@@ -298,4 +315,116 @@ void showBitmap(uint16_t offset, unsigned long time) {
   
   // Wait for the specified time (ms)
   delay(time);
+}
+
+// Play Conway's Game of Life
+void playConway(uint16_t offset, uint16_t num_gens) {
+  
+  byte gol_1[NUM_LEDS];
+  byte gol_2[NUM_LEDS];
+  byte *gol_prev;
+  byte *gol_new;
+  bool gol_swap = true;
+  uint8_t cell_state;
+  uint8_t neighbors;
+  uint16_t g;
+  int8_t x;
+  int8_t y;
+  int8_t rx;
+  int8_t ry;
+  
+  Serial.println("Playing Conway");
+  
+  // Translate bytes to bit array
+  for ( y = 0; y < BITMAP_SIZE; y++ ) {
+    for ( x = 0; x < BITS_PER_BYTE; x++ ) {
+      gol_1[(y * BITS_PER_BYTE) + x] = 
+          (actions_table[offset + y] >> x) & 0x01;
+      Serial.print(gol_1[(y * BITS_PER_BYTE) + x]);
+    }
+    Serial.println();
+  }
+  
+  // Show initial state
+  Plex.drawBitmap(gol_1);
+  Plex.display();
+  delay(CONWAY_DISP_TIME);
+  
+  // Play Conway's game for a number of generations
+  for ( g = 0; g < num_gens; g++ ) {
+    
+    Serial.print("=====Gen: ");
+    Serial.println(g);
+    
+    // Swap array pointers
+    if ( gol_swap ) {
+      gol_prev = gol_1;
+      gol_new = gol_2;
+      gol_swap = false;
+    } else {
+      gol_prev = gol_2;
+      gol_new = gol_1;
+      gol_swap = true;
+    }
+    
+    // Go through each cell
+    for ( y = 0; y < COL_SIZE; y++ ) {
+      for ( x = 0; x < ROW_SIZE; x++ ) {
+        
+        // Determine if cell is alive or dead
+        cell_state = gol_prev[(y * ROW_SIZE) + x];
+        
+        // Count number of alive neighbors (8 directions)
+        neighbors = 0;
+        for ( ry = -1; ry <= 1; ry++ ) {
+          
+          // Don't want to go past array bounds
+          if ( ((y + ry) < 0) || ((y + ry) >= COL_SIZE) ) {
+            continue;
+          }
+          
+          for ( rx = -1; rx <= 1; rx++ ) {
+            
+            // Don't want to go past array bounds
+            if ( ((x + rx) < 0) || ((x + rx) >= ROW_SIZE) ) {
+              continue;
+            }
+            
+            // Don't want to count self
+            if ( (rx == 0) && (ry == 0) ) {
+              continue;
+            }
+            
+            // Only count alive neighbors
+            if (gol_prev[((y + ry) * ROW_SIZE) + (x + rx)] == 1) {
+              neighbors++;
+            }
+          }
+        }
+        
+        // See if the cell lives or dies in next generation
+        if ( ((cell_state == 1) && (neighbors == 2)) ||
+                                         (neighbors == 3) ) {
+          gol_new[(y * ROW_SIZE) + x] = 1;
+        } else {
+          gol_new[(y * ROW_SIZE) + x] = 0;
+        }
+      }
+    }
+    
+    // Print next generation to Serial
+#if DEBUG
+    for ( uint8_t j = 0; j < COL_SIZE; j++ ) {
+      for ( uint8_t i = 0; i < ROW_SIZE; i++ ) {
+        Serial.print(gol_new[(j * ROW_SIZE) + i]);
+      }
+      Serial.println();
+    }
+#endif
+    
+    // Show generation
+    Plex.drawBitmap(gol_new);
+    Plex.display();
+    delay(CONWAY_DISP_TIME);
+  }
 }

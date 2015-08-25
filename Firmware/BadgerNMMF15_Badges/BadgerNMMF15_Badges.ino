@@ -49,10 +49,10 @@ Distributed as-is; no warranty is given.
 // Parameters
 #define DEBUG             0
 #define LED_PIN           13
-#define MAX_ACTIONS       15    // Number of actions per loop
+#define MAX_ACTIONS       30    // Number of actions per loop
 #define MAX_TEXT_LENGTH   20    // Number of characters (>7)
 #define BITMAP_DISP_TIME  2000  // Time (ms) to pause on bitmap
-#define FRAME_DISP_TIME   200   // Time (ms) to pause on frame
+#define FRAME_DISP_TIME   100   // Time (ms) to pause on frame
 #define CONWAY_NUM_GENS   10    // Number of generations
 #define CONWAY_DISP_TIME  100   // Time (ms) to pause generation
 
@@ -74,7 +74,9 @@ Distributed as-is; no warranty is given.
 #define BITS_PER_BYTE     8
 
 // EEPROM addresses
-#define ADDR_PROD_TEST    501
+// Addr 0 - 29 used for actions list
+// Addr 30 - 659 used for actions table
+#define ADDR_PROD_TEST    801
 
 // Global variables
 SoftwareSerial softy(11, 10);  // RX, TX
@@ -82,7 +84,7 @@ static byte led_pins[] = {2, 3, 4, 5, 6, 7, 8, 9};
 byte in_msg[MAX_PAYLOAD_SIZE];
 uint8_t bytes_received;
 uint8_t actions[MAX_ACTIONS];
-byte actions_table[MAX_TEXT_LENGTH * MAX_ACTIONS];
+byte actions_table[(MAX_TEXT_LENGTH + 1) * MAX_ACTIONS];
 uint8_t action_cnt;
 uint8_t action_len;
 const byte flame00[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20};
@@ -94,7 +96,6 @@ const byte flame05[] = {0x00, 0x0A, 0x2E, 0x3E, 0x3C, 0x30, 0x20};
 const byte sparkfun_logo[] = {0x08, 0x0A, 0x2E, 0x3E, 0x3C, 
                                                 0x30, 0x20};
 const char initial_text[] = "#BadgerHack";
-
 
 // Global variables for production test
 int A0PinSet[] = {2, 4, 6, 8, 10, 16, 18};//7 pins
@@ -162,6 +163,8 @@ void setup() {
   addAction(HEADER_CONWAY, ptr, 0);
   ptr = initial_text;
   addAction(HEADER_TEXT, ptr, strlen(ptr));
+  
+  
 
 }
 
@@ -186,7 +189,7 @@ void clearActions() {
   
   // Clear action tables
   memset(actions, 0, MAX_ACTIONS);
-  memset(actions_table, 0, MAX_TEXT_LENGTH * MAX_ACTIONS);
+  memset(actions_table, 0, (MAX_TEXT_LENGTH + 1) * MAX_ACTIONS);
   
   // Clear actions length and counter
   action_cnt = 0;
@@ -256,15 +259,13 @@ void performAction(uint8_t index) {
   // Predefine the offset into the actions table
   uint16_t offset = index * MAX_TEXT_LENGTH * sizeof(byte);
   
-  // Clear the display in preparation
-  Plex.clear();
-  Plex.display();
-  
   // Do the thing we said we would do
   switch ( actions[index] ) {
     
     // Scroll text once
     case HEADER_TEXT:
+      Plex.clear();
+      Plex.display();
       char text_buf[MAX_TEXT_LENGTH];
       memset(text_buf, 0, MAX_TEXT_LENGTH);
       memcpy(text_buf, actions_table + offset, MAX_TEXT_LENGTH);
@@ -333,16 +334,12 @@ void playConway(uint16_t offset, uint16_t num_gens) {
   int8_t rx;
   int8_t ry;
   
-  Serial.println("Playing Conway");
-  
   // Translate bytes to bit array
   for ( y = 0; y < BITMAP_SIZE; y++ ) {
     for ( x = 0; x < BITS_PER_BYTE; x++ ) {
       gol_1[(y * BITS_PER_BYTE) + x] = 
           (actions_table[offset + y] >> x) & 0x01;
-      Serial.print(gol_1[(y * BITS_PER_BYTE) + x]);
     }
-    Serial.println();
   }
   
   // Show initial state
@@ -352,9 +349,6 @@ void playConway(uint16_t offset, uint16_t num_gens) {
   
   // Play Conway's game for a number of generations
   for ( g = 0; g < num_gens; g++ ) {
-    
-    Serial.print("=====Gen: ");
-    Serial.println(g);
     
     // Swap array pointers
     if ( gol_swap ) {
@@ -413,7 +407,7 @@ void playConway(uint16_t offset, uint16_t num_gens) {
     }
     
     // Print next generation to Serial
-#if DEBUG
+#if 0
     for ( uint8_t j = 0; j < COL_SIZE; j++ ) {
       for ( uint8_t i = 0; i < ROW_SIZE; i++ ) {
         Serial.print(gol_new[(j * ROW_SIZE) + i]);

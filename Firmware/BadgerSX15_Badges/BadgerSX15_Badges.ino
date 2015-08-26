@@ -121,9 +121,9 @@ void setup() {
   uint8_t i;
   
   // Perform production test
-  while ( EEPROM.read(ADDR_PROD_TEST) != 0xAB ) {
-    test_code();
-  }
+  //while ( EEPROM.read(ADDR_PROD_TEST) != 0xAB ) {
+  //  test_code();
+  //}
   
   // Blink a few times to show that we are alive
   pinMode(LED_PIN, OUTPUT);

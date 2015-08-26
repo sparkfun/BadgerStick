@@ -32,7 +32,7 @@ The Chaplex library can be found at:
 http://playground.arduino.cc/Code/Chaplex
 
 Development environment specifics:
-Written in Arduino 1.0.6
+Written in Arduino 1.6.3
 Tested with SparkFun BadgerStick (Interactive Badge)
 
 This code is beerware; if you see me (or any other SparkFun 
@@ -57,17 +57,23 @@ Distributed as-is; no warranty is given.
 #define CONWAY_NUM_GENS   20    // Number of generations
 #define CONWAY_DISP_TIME  100   // Time (ms) to pause generation
 #define RAIN_DISP_TIME    50    // Time (ms) between frames
+#define RX_TIMEOUT        200   // ms
 
 // Communications constants
+#define SOFT_BAUD_RATE    1200
 #define MAX_PAYLOAD_SIZE  21
 #define IN_BUF_MAX        MAX_PAYLOAD_SIZE + 2
+#define SERIAL_BEGIN      0x55
+#define SERIAL_SOF        0xD5
+#define SERIAL_EOF        0xAA
 #define HEADER_CLEAR      0x01
 #define HEADER_TEXT       0x02
 #define HEADER_BITMAP     0x03
 #define HEADER_FRAME      0x04
 #define HEADER_CONWAY     0x05
 #define HEADER_ANIMATION  0x06
-#define ACK               0xAC
+#define HEADER_ACK        0xAC
+#define HEADER_BREAK      0xBE
 
 // Animation constants
 #define ANIM_RAIN         1
@@ -115,9 +121,18 @@ int A7val;
 
 // Global variables
 SoftwareSerial softy(11, 10);  // RX, TX
+byte out_msg[MAX_PAYLOAD_SIZE];
+byte in_msg[MAX_PAYLOAD_SIZE];
+uint8_t bytes_received;
 static byte led_pins[] = {2, 3, 4, 5, 6, 7, 8, 9};
 uint8_t action_cnt;
+uint8_t prev_action;
 
+/***************************************************************
+ * Main
+ **************************************************************/
+
+// Run once
 void setup() {
   
   uint8_t i;
@@ -150,7 +165,7 @@ void setup() {
 #endif
 
   // If we have not passed production test, fill default actions
-  if ( EEPROM.read(ADDR_PROD_TEST) != PROD_TEST_SUCCESS ) {
+  if ( EEPROM.read(ADDR_PROD_TEST) != 0 ) {
     clearActions();
     ptr = conway_start;
     addAction(HEADER_CONWAY, ptr, 0);
@@ -179,6 +194,9 @@ void setup() {
     test_code();
   }
   
+  // Initialize the software serial port
+  softy.begin(SOFT_BAUD_RATE);
+  
   // Seed the RNGesus
   randomSeed(analogRead(0));
   
@@ -195,19 +213,249 @@ void setup() {
   
   // Initialize action counter
   action_cnt = 0;
+  
+  // Initialize checking
+  prev_action = 0;
 }
 
+// Superloop
 void loop() {
+  
+  Serial.print("Prev: ");
+  Serial.print(prev_action, DEC);
+  Serial.print(" Current: ");
+  Serial.println(EEPROM.read(ADDR_LIST_START + action_cnt), DEC);
+  
+  // Skip transfers if middle of animation
+  if ( (prev_action != HEADER_FRAME) ||
+      (EEPROM.read(ADDR_LIST_START + action_cnt) != 
+      HEADER_FRAME) ) {
+        
+    // Clear LEDs
+    Plex.clear();
+    Plex.display();
+  
+    // Try sending the BREAK message
+    out_msg[0] = HEADER_BREAK;
+#if DEBUG
+    Serial.print(F("Sending: 0x"));
+    Serial.println(out_msg[0], HEX);
+#endif
+    transmitMessage(out_msg, 1);
+    
+    // Get message, add action, send ACK until timeout
+    while ( true ) {
+      memset(in_msg, 0, MAX_PAYLOAD_SIZE);
+      bytes_received = receiveMessage(in_msg, RX_TIMEOUT);
+    
+      // See if anything was received. If not, exit loop.
+      if ( bytes_received > 0 ) {
+      
+        // Print the message received
+#if DEBUG
+        Serial.print(F("Received: "));
+        for ( uint8_t i = 0; i < bytes_received; i++ ) {
+          Serial.print(F("0x"));
+          Serial.print(in_msg[i], HEX);
+          Serial.print(F(" "));
+        }
+        Serial.println();
+#endif
+
+      } else {
+        break;
+      }
+      
+      // Clear or add action as per the message
+      interpretMessage();
+      
+      // Send ACK
+      out_msg[0] = HEADER_ACK;
+#if DEBUG
+    Serial.print(F("Sending: 0x"));
+    Serial.println(out_msg[0], HEX);
+#endif
+      transmitMessage(out_msg, 1);
+    }
+  }
   
   // Perform desired action and update counter
   if ( EEPROM.read(ADDR_NUM_ACTIONS) > 0 ) {
     performAction(action_cnt);
+    prev_action = EEPROM.read(ADDR_LIST_START + action_cnt);
     action_cnt = (action_cnt + 1) % EEPROM.read(ADDR_NUM_ACTIONS);
   }
 }
 
 /***************************************************************
- * High Level Functions
+ * High Level Main Functions
+ **************************************************************/
+ 
+// Read the receive buffer and add the listed action
+void interpretMessage() {
+  
+  const byte *ptr;
+  char text[MAX_TEXT_LENGTH];
+
+  // Read the header
+  switch ( in_msg[0] ) {
+  
+    // Clear the actions
+    case HEADER_CLEAR:
+#if DEBUG
+      Serial.println(F("Clearing actions"));
+#endif
+      clearActions();
+      break;
+          
+    // Add text
+    case HEADER_TEXT:
+#if DEBUG
+      Serial.println(F("Adding text"));
+#endif
+      ptr = (const byte*)(in_msg + 2);
+      addAction(HEADER_TEXT, ptr, in_msg[1]);
+      break;
+
+    // Unknown header
+    default:
+      break;
+  }
+}
+
+/***************************************************************
+ * Communication Functions
+ **************************************************************/
+
+// Transmit message with BEGIN, SOF, Checksum, and EOF bytes
+void transmitMessage(byte msg[], uint8_t len) {
+  
+  int i;
+  byte cs;
+  byte *out_buf;
+  uint8_t buf_size;
+  
+  // If message is greater than max size, only xmit max bytes
+  if ( len > MAX_PAYLOAD_SIZE ) {
+    len = MAX_PAYLOAD_SIZE;
+  }
+  
+  // Full buffer is message + BEGIN, SOF, CS, EOF bytes
+  buf_size = len + 4;
+  
+  // Calculate checksum
+  cs = createChecksum(msg, len);
+  
+  // Create the output buffer with BEGIN, SOF, CS, and EOF
+  out_buf = (byte*)malloc(buf_size * sizeof(byte));
+  out_buf[0] = SERIAL_BEGIN;
+  out_buf[1] = SERIAL_SOF;
+  memcpy(out_buf + 2, msg, len);
+  out_buf[buf_size - 2] = cs;
+  out_buf[buf_size - 1] = SERIAL_EOF;
+  
+  // Transmit buffer
+  for ( i = 0; i < buf_size; i++ ) {
+    softy.write(out_buf[i]);
+  }
+  
+  // Free some memory
+  free(out_buf);
+}
+
+// Receive a message (number of bytes received is returned)
+// Timeout is in ms. 0 timeout means wait forever (blocking).
+uint8_t receiveMessage(byte msg[], unsigned long timeout) {
+  
+  boolean valid;
+  uint8_t buf_idx;
+  unsigned long start_time;
+  byte in_buf[IN_BUF_MAX];
+  byte r;
+  
+  // Our receiver. Wait until we get a valid message or time out
+  start_time = millis();
+  valid = false;
+  while ( !valid ) {
+    
+    // Wait until we see a Start of Frame (SOF) or time out
+    memset(in_buf, 0, IN_BUF_MAX);
+    while ( !softy.available() ) {
+      if ( (millis() - start_time > timeout) && (timeout > 0) ) {
+        return 0;
+      }
+    }
+    r = softy.read();
+    if ( r != SERIAL_SOF ) {
+      continue;
+    }
+    
+    // Read buffer
+    delay(2);  // Magical delay to let the buffer fill up
+    buf_idx = 0;
+    while ( softy.available() > 0 ) {
+      if ( buf_idx >= IN_BUF_MAX ) {
+        buf_idx = IN_BUF_MAX - 1;
+      }
+      in_buf[buf_idx] = softy.read();
+      Serial.print("0x");
+      Serial.print(in_buf[buf_idx], HEX);
+      Serial.print(" ");
+      buf_idx++;
+      delay(2);  // Magical delay to let the buffer fill up
+    }
+    Serial.println();
+    
+    // End of Frame (EOF) check
+    if ( in_buf[buf_idx - 1] != SERIAL_EOF ) {
+      continue;
+    }
+    
+    // Verify the checksum
+    if ( verifyChecksum(in_buf, buf_idx - 1) ) {
+      valid = 1;
+    }
+  }
+  
+  // Copy our message (don't copy checksum or EOF bytes)
+  memcpy(msg, in_buf, buf_idx - 2);
+  
+  return buf_idx - 2;
+}
+
+// Calculate checksum (ignore Begin and SOF bytes)
+byte createChecksum(byte buf[], uint8_t len) {
+  
+  uint8_t i;
+  byte sum;
+  
+  // XOR all bytes in the message
+  sum = 0;
+  for ( i = 0; i < len; i++ ) {
+    sum ^= buf[i];
+  }
+  
+  return sum;
+}
+
+// Check the checksum
+boolean verifyChecksum(byte buf[], uint8_t len) {
+  
+  uint8_t i;
+  byte sum;
+  
+  // XOR all bytes in the message (including checksum byte)
+  sum = 0;
+  for ( i = 0; i < len; i++ ) {
+    sum ^= buf[i];
+  }
+  
+  // Sum should be 0 if the checksum is correct
+  return (sum ? false : true);
+}
+
+/***************************************************************
+ * High Level Draw Functions
  **************************************************************/
 
 // Clear all actions from the table
@@ -382,7 +630,7 @@ void performAction(uint8_t index) {
 }
 
 /***************************************************************
- * Animation/Display Functions
+ * Low Level Animation/Display Functions
  **************************************************************/
 
 // Display a bitmap on the LEDs for a given amount of time
@@ -495,7 +743,7 @@ void playConway(uint16_t offset, uint16_t num_gens) {
     }
     
     // Print next generation to Serial
-#if 1
+#if 0
     for ( uint8_t j = 0; j < COL_SIZE; j++ ) {
       for ( uint8_t i = 0; i < ROW_SIZE; i++ ) {
         Serial.print(gol_new[(j * ROW_SIZE) + i]);

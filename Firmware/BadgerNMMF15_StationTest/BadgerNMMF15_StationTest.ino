@@ -28,13 +28,26 @@ Distributed as-is; no warranty is given.
 
 // Parameters
 #define DEBUG             1
-#define RX_TIMEOUT        200  // ms
-#define LED_PIN           13
+#define RX_TIMEOUT        1000  // ms
+#define MAX_TEXT_LENGTH   20    // Number of characters (>7)
+#define TEXT_BTN          9
+#define IMAGE_BTN         8
+#define CONWAY_BTN        7
+#define ANIM_BTN          6
 #define TRIG_PIN          5
+#define LED_PIN           13
+#define TEXT_LED          A3
+#define IMAGE_LED         A2
+#define CONWAY_LED        A1
+#define ANIM_LED          A0
+
+// Other constants
+#define BITMAP_SIZE       7     // Number of bytes in bitmap
+#define BITS_PER_BYTE     8
 
 // Communications constants
 #define SOFT_BAUD_RATE    1200
-#define MAX_PAYLOAD_SIZE  21
+#define MAX_PAYLOAD_SIZE  MAX_TEXT_LENGTH + 2
 #define IN_BUF_MAX        MAX_PAYLOAD_SIZE + 2
 #define SERIAL_BEGIN      0x55
 #define SERIAL_SOF        0xD5
@@ -48,9 +61,15 @@ Distributed as-is; no warranty is given.
 #define HEADER_ACK        0xAC
 #define HEADER_BREAK      0xBE
 
+// Animation constants
+#define ANIM_RAIN         1
+#define ANIM_EXPLOSIONS   2
+
 // Example actions
-const char test_str[] = "Oh my.";
+const char test_str[] = "ABCDEFGHIJKLMNOPQRSTUV";
 const byte test_img[] = {0x00,0x24,0x24,0x00,0x42,0x3C,0x00};
+const byte test_conway[] = {0x00,0x00,0x00,0x00,0x60,0xA0,0x20};
+const byte test_anim = ANIM_EXPLOSIONS;
 
 // Global variables
 SoftwareSerial softy(11, 10);  // RX, TX
@@ -61,6 +80,18 @@ uint8_t led;
 bool trig;
 bool prev_trig;
 bool transferring;
+bool add_text;
+bool add_image;
+bool add_conway;
+bool add_anim;
+bool prev_text;
+bool prev_image;
+bool prev_conway;
+bool prev_anim;
+
+/***************************************************************
+ * Main
+ **************************************************************/
 
 void setup() {
   
@@ -78,15 +109,65 @@ void setup() {
   pinMode(TRIG_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
+  pinMode(TEXT_BTN, INPUT_PULLUP);
+  pinMode(TEXT_LED, OUTPUT);
+  digitalWrite(TEXT_LED, LOW);
+  pinMode(IMAGE_BTN, INPUT_PULLUP);
+  pinMode(IMAGE_LED, OUTPUT);
+  digitalWrite(IMAGE_LED, LOW);
+  pinMode(CONWAY_BTN, INPUT_PULLUP);
+  pinMode(CONWAY_LED, OUTPUT);
+  digitalWrite(CONWAY_LED, LOW);
+  pinMode(ANIM_BTN, INPUT_PULLUP);
+  pinMode(ANIM_LED, OUTPUT);
+  digitalWrite(ANIM_LED, LOW);
   
   // Initialize globals
   trig = false;
   prev_trig = false;
   led = 0;
   transferring = false;
+  add_text = false;
+  add_image = false;
+  add_conway = false;
+  add_anim = false;
+  prev_text = false;
+  prev_image = false;
+  prev_conway = false;
+  prev_anim = false;
 }
 
 void loop() {
+  
+  bool btn_state;
+  
+  // See if settings buttons were pushed
+  btn_state = digitalRead(TEXT_BTN);
+  if ( !btn_state && prev_text ) {
+    add_text = !add_text;
+  }
+  prev_text = btn_state;
+  btn_state = digitalRead(IMAGE_BTN);
+  if ( !btn_state && prev_image ) {
+    add_image = !add_image;
+  }
+  prev_image = btn_state;
+  btn_state = digitalRead(CONWAY_BTN);
+  if ( !btn_state && prev_conway ) {
+    add_conway = !add_conway;
+  }
+  prev_conway = btn_state;
+  btn_state = digitalRead(ANIM_BTN);
+  if ( !btn_state && prev_anim ) {
+    add_anim = !add_anim;
+  }
+  prev_anim = btn_state;
+  
+  // Switch LEDs based on add states
+  digitalWrite(TEXT_LED, add_text);
+  digitalWrite(IMAGE_LED, add_image);
+  digitalWrite(CONWAY_LED, add_conway);
+  digitalWrite(ANIM_LED, add_anim);
   
   // See if button was pushed
   if ( digitalRead(TRIG_PIN) == 0 ) {
@@ -99,6 +180,11 @@ void loop() {
 #if DEBUG
     Serial.println("Triggered! Waiting for Badger...");
 #endif
+
+    // Flush receiver
+    while ( softy.available() > 0 ) {
+      softy.read();
+    }
     
     // Wait for message from Badger
     transferring = true;
@@ -108,6 +194,12 @@ void loop() {
       doTransfer();
       delay(500);
     }
+    
+    // Reset settings
+    add_text = false;
+    add_image = false;
+    add_conway = false;
+    add_anim = false;
   }
   prev_trig = trig;
 }
@@ -148,40 +240,43 @@ void doTransfer() {
       Serial.println(out_msg[0], HEX);
 #endif
       transmitMessage(out_msg, 1);
+      
+      // Construct array of what we want to add
+      bool to_add[4] = {add_text, add_image, 
+                        add_conway, add_anim};
     
-      for ( uint8_t i = 0; i < 2; i++ ) {
-        digitalWrite(LED_PIN, HIGH);
-        memset(in_msg, 0, MAX_PAYLOAD_SIZE);
-        bytes_received = receiveMessage(in_msg, RX_TIMEOUT);
-
-        // See if anything was received. If not, exit loop.
-        if ( bytes_received > 0 ) {
-      
-        // Print the message received
+      // Loop through things to add
+      for ( uint8_t i = 0; i < 4; i++ ) {
+        
+        // Only add if we want to!
+        if ( to_add[i] ) {
+        
+          // Flash LED, wait for ACK
+          digitalWrite(LED_PIN, HIGH);
+          memset(in_msg, 0, MAX_PAYLOAD_SIZE);
+          bytes_received = receiveMessage(in_msg, RX_TIMEOUT);
+  
+          // See if anything was received. If not, exit loop.
+          if ( bytes_received <= 0 ) {
 #if DEBUG
-        Serial.print(F("Received: "));
-        for ( uint8_t i = 0; i < bytes_received; i++ ) {
-          Serial.print(F("0x"));
-          Serial.print(in_msg[i], HEX);
-          Serial.print(F(" "));
-        }
-        Serial.println();
+            Serial.println("Timeout");
 #endif
-        } else {
-          break;
-        }
-      
-        // If ACK, continue
-        if ( in_msg[0] == HEADER_ACK ) {
+            break;
+          }
+        
+          // If ACK, continue
+          if ( in_msg[0] == HEADER_ACK ) {
 #if DEBUG
-          Serial.println("ACK");
+            Serial.println("ACK");
 #endif
-          sendAction(i);
-        } else {
-          break;
+            sendAction(i);
+          } else {
+            break;
+          }
+          digitalWrite(LED_PIN, LOW);
         }
-        digitalWrite(LED_PIN, LOW);
       }
+      digitalWrite(LED_PIN, LOW);
       transferring = false;
     }
   }
@@ -196,19 +291,39 @@ void sendAction(uint8_t idx) {
     
     // Send text
     case 0: 
+      len = strlen(test_str);
+      if ( len > MAX_TEXT_LENGTH ) {
+        len = MAX_TEXT_LENGTH;
+      }
       memset(out_msg, 0, MAX_PAYLOAD_SIZE);
       out_msg[0] = HEADER_TEXT;
-      out_msg[1] = strlen(test_str);
-      memcpy(out_msg + 2, test_str, strlen(test_str));
-      len = strlen(test_str) + 2;
+      out_msg[1] = len;
+      memcpy(out_msg + 2, test_str, len);
+      len = len + 2;
       break;
       
     // Send bitmap
     case 1:
+      len = BITMAP_SIZE + 1;
       memset(out_msg, 0, MAX_PAYLOAD_SIZE);
-      out_msg[0] = HEADER_BITMAP;
-      memcpy(out_msg + 1, test_img, 7);
-      len = 7;
+      out_msg[0] = HEADER_FRAME;
+      memcpy(out_msg + 1, test_img, len);
+      break;
+      
+    // Send Conway
+    case 2:
+      len = BITMAP_SIZE + 1;
+      memset(out_msg, 0, MAX_PAYLOAD_SIZE);
+      out_msg[0] = HEADER_CONWAY;
+      memcpy(out_msg + 1, test_conway, len);
+      break;
+      
+    // Send animation
+    case 3:
+      len = 2;
+      memset(out_msg, 0, MAX_PAYLOAD_SIZE);
+      out_msg[0] = HEADER_ANIMATION;
+      out_msg[1] = test_anim;
       break;
       
     // Unknown case

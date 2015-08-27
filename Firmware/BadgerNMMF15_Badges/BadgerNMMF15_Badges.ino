@@ -48,7 +48,7 @@ Distributed as-is; no warranty is given.
 #include <Chaplex.h>
 
 // Parameters
-#define DEBUG             1
+#define DEBUG             0
 #define LED_PIN           13
 #define MAX_ACTIONS       30    // Number of actions per loop
 #define MAX_TEXT_LENGTH   20    // Number of characters (>7)
@@ -57,11 +57,13 @@ Distributed as-is; no warranty is given.
 #define CONWAY_NUM_GENS   20    // Number of generations
 #define CONWAY_DISP_TIME  100   // Time (ms) to pause generation
 #define RAIN_DISP_TIME    50    // Time (ms) between frames
-#define RX_TIMEOUT        200   // ms
+#define RX_DELAY          500   // Time to wait for buffer to fill
+#define INITIAL_TIMEOUT   20    // Waiting for first data (ms)
+#define TRANSFER_TIMEOUT  1000  // Waiting for more data (ms)
 
 // Communications constants
 #define SOFT_BAUD_RATE    1200
-#define MAX_PAYLOAD_SIZE  21
+#define MAX_PAYLOAD_SIZE  MAX_TEXT_LENGTH + 2
 #define IN_BUF_MAX        MAX_PAYLOAD_SIZE + 2
 #define SERIAL_BEGIN      0x55
 #define SERIAL_SOF        0xD5
@@ -127,6 +129,7 @@ uint8_t bytes_received;
 static byte led_pins[] = {2, 3, 4, 5, 6, 7, 8, 9};
 uint8_t action_cnt;
 uint8_t prev_action;
+uint16_t timeout;
 
 /***************************************************************
  * Main
@@ -165,7 +168,7 @@ void setup() {
 #endif
 
   // If we have not passed production test, fill default actions
-  if ( EEPROM.read(ADDR_PROD_TEST) != 0 ) {
+  if ( EEPROM.read(ADDR_PROD_TEST) != PROD_TEST_SUCCESS ) {
     clearActions();
     ptr = conway_start;
     addAction(HEADER_CONWAY, ptr, 0);
@@ -243,10 +246,14 @@ void loop() {
 #endif
     transmitMessage(out_msg, 1);
     
+    // Magic delay to let input buffer fill
+    delay(RX_DELAY);
+    
     // Get message, add action, send ACK until timeout
+    timeout = INITIAL_TIMEOUT;
     while ( true ) {
       memset(in_msg, 0, MAX_PAYLOAD_SIZE);
-      bytes_received = receiveMessage(in_msg, RX_TIMEOUT);
+      bytes_received = receiveMessage(in_msg, timeout);
     
       // See if anything was received. If not, exit loop.
       if ( bytes_received > 0 ) {
@@ -261,13 +268,12 @@ void loop() {
         }
         Serial.println();
 #endif
+        // We got a response! Make timeout longer
+        timeout = TRANSFER_TIMEOUT;
 
       } else {
         break;
       }
-      
-      // Clear or add action as per the message
-      interpretMessage();
       
       // Send ACK
       out_msg[0] = HEADER_ACK;
@@ -276,6 +282,9 @@ void loop() {
     Serial.println(out_msg[0], HEX);
 #endif
       transmitMessage(out_msg, 1);
+      
+      // Clear or add action as per the message
+      interpretMessage();
     }
   }
   
@@ -296,6 +305,7 @@ void interpretMessage() {
   
   const byte *ptr;
   char text[MAX_TEXT_LENGTH];
+  uint8_t animation = 0;
 
   // Read the header
   switch ( in_msg[0] ) {
@@ -315,6 +325,43 @@ void interpretMessage() {
 #endif
       ptr = (const byte*)(in_msg + 2);
       addAction(HEADER_TEXT, ptr, in_msg[1]);
+      break;
+      
+    // Add bitmap
+    case HEADER_BITMAP:
+#if DEBUG
+      Serial.println(F("Adding bitmap"));
+#endif
+      ptr = (const byte *)(in_msg + 1);
+      addAction(HEADER_BITMAP, ptr, 0);
+      break;
+      
+    // Add frame
+    case HEADER_FRAME:
+#if DEBUG
+      Serial.println(F("Adding frame"));
+#endif
+      ptr = (const byte *)(in_msg + 1);
+      addAction(HEADER_FRAME, ptr, 0);
+      break;
+      
+    // Add Conway's Game of Life
+    case HEADER_CONWAY:
+#if DEBUG
+      Serial.println(F("Adding Conway"));
+#endif
+      ptr = (const byte *)(in_msg + 1);
+      addAction(HEADER_CONWAY, ptr, 0);
+      break;
+      
+      // Add math animation
+    case HEADER_ANIMATION:
+#if DEBUG
+      Serial.print(F("Adding animation #"));
+      Serial.println(in_msg[1]);
+#endif
+      animation = in_msg[1];
+      addAction(HEADER_ANIMATION, &animation, 0);
       break;
 
     // Unknown header

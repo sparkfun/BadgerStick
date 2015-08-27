@@ -27,7 +27,7 @@ Distributed as-is; no warranty is given.
 #include <SoftwareSerial.h>
 
 // Parameters
-#define DEBUG             1
+#define DEBUG             0
 #define RX_TIMEOUT        1000  // ms
 #define MAX_TEXT_LENGTH   20    // Number of characters (>7)
 #define TEXT_BTN          9
@@ -306,7 +306,7 @@ void sendAction(uint8_t idx) {
     case 1:
       len = BITMAP_SIZE + 1;
       memset(out_msg, 0, MAX_PAYLOAD_SIZE);
-      out_msg[0] = HEADER_FRAME;
+      out_msg[0] = HEADER_BITMAP;
       memcpy(out_msg + 1, test_img, len);
       break;
       

@@ -58,7 +58,7 @@ Distributed as-is; no warranty is given.
 #define CONWAY_DISP_TIME  100   // Time (ms) to pause generation
 #define RAIN_DISP_TIME    50    // Time (ms) between frames
 #define RX_DELAY          500   // Time to wait for buffer to fill
-#define INITIAL_TIMEOUT   20    // Waiting for first data (ms)
+#define INITIAL_TIMEOUT   10    // Waiting for first data (ms)
 #define TRANSFER_TIMEOUT  1000  // Waiting for more data (ms)
 
 // Communications constants
@@ -99,8 +99,7 @@ const byte flame02[] = {0x00, 0x00, 0x00, 0x00, 0x3C, 0x30, 0x20};
 const byte flame03[] = {0x00, 0x00, 0x00, 0x3E, 0x3C, 0x30, 0x20};
 const byte flame04[] = {0x00, 0x00, 0x2E, 0x3E, 0x3C, 0x30, 0x20};
 const byte flame05[] = {0x00, 0x0A, 0x2E, 0x3E, 0x3C, 0x30, 0x20};
-const byte sparkfun_logo[] = {0x08, 0x0A, 0x2E, 0x3E, 0x3C, 
-                                                0x30, 0x20};
+const byte flame06[] = {0x08, 0x0A, 0x2E, 0x3E, 0x3C, 0x30, 0x20};
 const byte conway_start[] = {0x00, 0x00, 0x00, 0x00, 0x60,
                                                 0xA0,0x20};
 const char initial_text[] = "#BadgerHack";
@@ -184,8 +183,10 @@ void setup() {
     addAction(HEADER_FRAME, ptr, 0);
     ptr = flame05;
     addAction(HEADER_FRAME, ptr, 0);
-    ptr = sparkfun_logo;
-    addAction(HEADER_BITMAP, ptr, 0);
+    for ( i = 0; i < 15; i++ ) {
+      ptr = flame06;
+      addAction(HEADER_FRAME, ptr, 0);
+    }
     animation = ANIM_RAIN;
     addAction(HEADER_ANIMATION, &animation, 0);
     ptr = (const byte*)initial_text;
@@ -230,9 +231,9 @@ void loop() {
   Serial.println(EEPROM.read(ADDR_LIST_START + action_cnt), DEC);
   
   // Skip transfers if middle of animation
-  if ( (prev_action != HEADER_FRAME) ||
+  if ( ((prev_action != HEADER_FRAME) ||
       (EEPROM.read(ADDR_LIST_START + action_cnt) != 
-      HEADER_FRAME) ) {
+      HEADER_FRAME)) || action_cnt == 0 ) {
         
     // Clear LEDs
     Plex.clear();

@@ -28,6 +28,7 @@ Distributed as-is; no warranty is given.
 
 // Parameters
 #define DEBUG             0
+#define CLEAR_FIRST       1
 #define RX_TIMEOUT        1000  // ms
 #define MAX_TEXT_LENGTH   20    // Number of characters (>7)
 #define TEXT_BTN          9
@@ -234,7 +235,11 @@ void doTransfer() {
     if ( in_msg[0] == HEADER_BREAK ) {
     
       // Send clear all message
-      out_msg[0] = HEADER_CLEAR;
+      if ( CLEAR_FIRST == 1 ) {
+        out_msg[0] = HEADER_CLEAR;
+      } else {
+        out_msg[0] = HEADER_BREAK;
+      }
 #if DEBUG
       Serial.print(F("Sending: 0x"));
       Serial.println(out_msg[0], HEX);

@@ -18,3 +18,4 @@ badger.build.board=BADGERSTICK
 badger.build.mcu=atmega328p
 badger.build.f_cpu=4000000L
 badger.build.core=arduino
+badger.build.variant=standard

@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -34565,9 +34565,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </package>
 <package name="SSOP28DB">
 <description>&lt;b&gt;Small Shrink Outline Package&lt;/b&gt;</description>
-<wire x1="-5.2" y1="2.925" x2="5.2" y2="2.925" width="0.1524" layer="21"/>
 <wire x1="5.2" y1="2.925" x2="5.2" y2="-2.925" width="0.1524" layer="21"/>
-<wire x1="5.2" y1="-2.925" x2="-5.2" y2="-2.925" width="0.1524" layer="21"/>
 <wire x1="-5.2" y1="-2.925" x2="-5.2" y2="2.925" width="0.1524" layer="21"/>
 <wire x1="-5.038" y1="2.763" x2="5.038" y2="2.763" width="0.0508" layer="27"/>
 <wire x1="5.038" y1="2.763" x2="5.038" y2="-2.763" width="0.0508" layer="27"/>
@@ -34631,7 +34629,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <rectangle x1="2.7625" y1="-3.9" x2="3.0875" y2="-2.9656" layer="51"/>
 <rectangle x1="3.4125" y1="-3.9" x2="3.7375" y2="-2.9656" layer="51"/>
 <rectangle x1="4.0625" y1="-3.9" x2="4.3875" y2="-2.9656" layer="51"/>
-<circle x="-5" y="-3.6" radius="0.3592" width="0.1524" layer="21"/>
+<circle x="-5" y="-3.6" radius="0.3592" width="0" layer="21"/>
+<wire x1="-5.2" y1="2.925" x2="-4.6" y2="2.925" width="0.1524" layer="21"/>
+<wire x1="5.2" y1="2.925" x2="4.6" y2="2.925" width="0.1524" layer="21"/>
+<wire x1="-5.2" y1="-2.925" x2="-4.6" y2="-2.925" width="0.1524" layer="21"/>
+<wire x1="5.2" y1="-2.925" x2="4.6" y2="-2.925" width="0.1524" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -34675,7 +34677,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pin name="PC0(ADC0)" x="22.86" y="30.48" length="middle" rot="R180"/>
 <pin name="PC6(/RESET)" x="-25.4" y="30.48" length="middle" function="dot"/>
 </symbol>
-<symbol name="CY7C65213">
+<symbol name="FT232R">
 <wire x1="-10.16" y1="20.32" x2="10.16" y2="20.32" width="0.254" layer="94"/>
 <wire x1="10.16" y1="20.32" x2="10.16" y2="-20.32" width="0.254" layer="94"/>
 <wire x1="10.16" y1="-20.32" x2="-10.16" y2="-20.32" width="0.254" layer="94"/>
@@ -34688,7 +34690,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pin name="DSR" x="15.24" y="2.54" length="middle" direction="in" function="dot" rot="R180"/>
 <pin name="DCD" x="15.24" y="0" length="middle" direction="in" function="dot" rot="R180"/>
 <pin name="RI" x="15.24" y="-2.54" length="middle" direction="in" function="dot" rot="R180"/>
-<pin name="VCCD" x="-15.24" y="7.62" length="middle" direction="out"/>
+<pin name="3V3OUT" x="-15.24" y="7.62" length="middle" direction="out"/>
 <pin name="USBDM" x="-15.24" y="17.78" length="middle"/>
 <pin name="USBDP" x="-15.24" y="15.24" length="middle"/>
 <pin name="GND7" x="-15.24" y="-12.7" length="middle" direction="pwr"/>
@@ -34760,15 +34762,18 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </device>
 </devices>
 </deviceset>
-<deviceset name="CY7C65213" prefix="U">
-<description>&lt;b&gt;USB UART&lt;/b&gt;&lt;br&gt;
-CY7C65213 USB-UART controller.</description>
+<deviceset name="FT232RL" prefix="U">
+<description>&lt;b&gt;USB UART&lt;/b&gt;
+FT232RL 4&lt;sup&gt;th&lt;/sup&gt; Generation USB UART (USB &amp;lt;-&amp;gt; Serial) Controller. &lt;br&gt;
+Spark Fun Electronics SKU : COM-00650&lt;br&gt;
+Production SKU IC-00870</description>
 <gates>
-<gate name="G$1" symbol="CY7C65213" x="0" y="0"/>
+<gate name="G$1" symbol="FT232R" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="SSOP28DB">
+<device name="SSOP" package="SSOP28DB">
 <connects>
+<connect gate="G$1" pin="3V3OUT" pad="17"/>
 <connect gate="G$1" pin="AGND" pad="25"/>
 <connect gate="G$1" pin="CTS" pad="11"/>
 <connect gate="G$1" pin="DCD" pad="10"/>
@@ -34793,12 +34798,11 @@ CY7C65213 USB-UART controller.</description>
 <connect gate="G$1" pin="USBDM" pad="16"/>
 <connect gate="G$1" pin="USBDP" pad="15"/>
 <connect gate="G$1" pin="VCC" pad="20"/>
-<connect gate="G$1" pin="VCCD" pad="17"/>
 <connect gate="G$1" pin="VCCIO" pad="4"/>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="PROD_ID" value="IC-12487"/>
+<attribute name="PROD_ID" value="IC-00870"/>
 </technology>
 </technologies>
 </device>
@@ -35327,7 +35331,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="R4" library="SparkFun-Resistors" deviceset="330OHM1/10W1%(0603)" device="" value="330"/>
 <part name="D3" library="SparkFun-LED" deviceset="LED-GREEN" device="0603" value="GREEN"/>
 <part name="GND12" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="U3" library="SparkFun-DigitalIC" deviceset="CY7C65213" device=""/>
+<part name="U3" library="SparkFun-DigitalIC" deviceset="FT232RL" device="SSOP"/>
 <part name="C7" library="SparkFun-Capacitors" deviceset="0.1UF-25V(+80/-20%)(0603)" device="" value="0.1uF"/>
 <part name="C8" library="SparkFun-Capacitors" deviceset="0.1UF-25V(+80/-20%)(0603)" device="" value="0.1uF"/>
 <part name="GND13" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
@@ -36149,7 +36153,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 </net>
 <net name="N$2" class="0">
 <segment>
-<pinref part="U3" gate="G$1" pin="VCCD"/>
+<pinref part="U3" gate="G$1" pin="3V3OUT"/>
 <wire x1="88.9" y1="116.84" x2="68.58" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="C8" gate="G$1" pin="1"/>
 <wire x1="68.58" y1="116.84" x2="68.58" y2="114.3" width="0.1524" layer="91"/>

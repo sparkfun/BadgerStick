@@ -48,7 +48,7 @@ Distributed as-is; no warranty is given.
 #include <Chaplex.h>
 
 // Parameters
-#define DEBUG             0
+#define DEBUG             1
 #define LED_PIN           13
 #define MAX_ACTIONS       30    // Number of actions per loop
 #define MAX_TEXT_LENGTH   20    // Number of characters (>7)

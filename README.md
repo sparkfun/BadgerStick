@@ -1,7 +1,9 @@
 Interactive Badges
 ==================
  
- ![SparkFun Part Name](https://cdn.sparkfun.com/assets/learn_tutorials/3/4/9/Badgerhack_Hookup_Guide-33.jpgt)
+ ![SparkFun BadgerHack](https://cdn.sparkfun.com/r/600-600/assets/learn_tutorials/4/3/6/Badgerhack_Hookup_Guide-35.jpg)
+ 
+ [*SparkFun BadgerHack *](https://learn.sparkfun.com/tutorials/badgerhack)
  
  These badges were designed as a soldering demo for the SparkFun booths at Maker Faire. 
  They were designed to teach the basics of PTH soldering, as well as to provide users with an Arduino platform they could take home and hack.
